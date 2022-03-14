@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     // アダプタを扱うための変数
     private NfcAdapter mNfcAdapter;
     private String TAG = "MainActivity";
+    TextView txt01;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         // アダプタのインスタンスを取得
         mNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(this);
 
+        txt01 = findViewById(R.id.txt01);
     }
 
     @Override
@@ -77,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         //httpリクエスト
         try{
             //okhttpを利用するカスタム関数（下記）
-            httpRequest("http://www.bluecode.jp/test/api.php");
+            httpRequest("https://hanken.link/hostnfcget-a"+"?id=1&nfc="+out);
         }catch(Exception e){
             Log.e("Hoge",e.getMessage());
         }
@@ -117,14 +120,24 @@ public class MainActivity extends AppCompatActivity {
                         try{
                             //jsonパース
                             JSONObject json = new JSONObject(jsonStr);
-                            final String status = json.getString("status");
+                            String statust = "";
+                            if (json.getString("isnfc") == "1" && json.getString("isticket") == "1" && json.getString("wasentry") == "0"){
+                                statust = "入場可能";
+                            }else if (json.getString("isnfc") == "1" && json.getString("isticket") == "1"){
+                                statust = "再入場";
+                            }else if (json.getString("isnfc") == "1"){
+                                statust = "チケットが登録されていません";
+                            }else{
+                                statust = "登録されていないNFCです";
+                            }
+                            final String status = statust;
 
                             //親スレッドUI更新
                             Handler mainHandler = new Handler(Looper.getMainLooper());
                             mainHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Log.w(TAG,status);
+                                    txt01.setText(status);
                                 }
                             });
 
