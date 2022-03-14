@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private NfcAdapter mNfcAdapter;
     private String TAG = "MainActivity";
     TextView txt01;
+    EditText event;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         mNfcAdapter = android.nfc.NfcAdapter.getDefaultAdapter(this);
 
         txt01 = findViewById(R.id.txt01);
+        event = findViewById(R.id.event);
     }
 
     @Override
@@ -76,11 +79,18 @@ public class MainActivity extends AppCompatActivity {
             tempS = tempS.length()==1?"0"+tempS:tempS;
             out += tempS;
         }
-        Log.d(TAG,out);
+        if (event.getText().toString() == ""){
+            return;
+        }
+        try{
+            Integer.parseInt(event.getText().toString());
+        }catch(Exception e){
+            return;
+        }
         //httpリクエスト
         try{
             //okhttpを利用するカスタム関数（下記）
-            httpRequest("https://hanken.link/hostnfcget-a"+"?id=1&nfc="+out);
+            httpRequest("https://hanken.link/hostnfcget-a"+"?id="+event.getText()+"&nfc="+out);
         }catch(Exception e){
             Log.e("Hoge",e.getMessage());
         }
